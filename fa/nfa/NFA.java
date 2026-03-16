@@ -1,9 +1,6 @@
 package fa.nfa;
 
-import java.util.Set;
-import java.util.Map;
-import java.util.HashSet;
-import java.util.HashMap;
+import java.util.*;
 
 
 import fa.State;
@@ -11,7 +8,7 @@ import fa.State;
 /**
  * Models a non-deterministic finite automaton (NFA) and supports its construction, simulation, symbol swapping
  * for transitions, and ...(TODO: finish)
- * 
+ *
  * @author Randy Bauer
  * @author Oliver Hill
  */
@@ -21,7 +18,6 @@ public class NFA implements NFAInterface {
     private Set<Character> sigma;
     private NFAState startState;
     private Set<NFAState> finalStates;
-    private Map<NFAState, HashMap<Character, NFAState>> transitions;
 
     /**
      * Default constructor. Initializes empty NFA 5-tuple:
@@ -36,7 +32,6 @@ public class NFA implements NFAInterface {
         sigma = new HashSet<>();
         startState = null;
         finalStates = new HashSet<>();
-        transitions = new HashMap<>();
     }
 
     @Override
@@ -90,56 +85,133 @@ public class NFA implements NFAInterface {
 
     @Override
     public Set<Character> getSigma() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getSigma'");
+       if (sigma.isEmpty()) {
+           return new HashSet<>();
+       }
+       return sigma;
     }
 
     @Override
     public State getState(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getState'");
+        for (NFAState state : states) {
+            if (state.getName().equals(name)) {
+                return state;
+            }
+        }
+        return null;
     }
 
     @Override
     public boolean isFinal(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isFinal'");
+        if (finalStates.isEmpty()) {
+            return false;
+        }
+        return finalStates.contains(getState(name));
     }
 
     @Override
     public boolean isStart(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isStart'");
+        if (startState == null) {
+            return false;
+        }
+        return startState.getName().equals(name);
     }
 
     @Override
     public Set<NFAState> getToState(NFAState from, char onSymb) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getToState'");
+        return from.getTransitions(onSymb);
     }
 
     @Override
     public Set<NFAState> eClosure(NFAState s) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'eClosure'");
+        Set<NFAState> visit = new HashSet<>();
+        Stack<NFAState> stack = new Stack<>();
+
+        stack.push(s);
+        visit.add(s);
+
+        while (!stack.isEmpty()) {
+            NFAState current = stack.pop();
+
+            for (NFAState nextState : getToState(current, 'e')){
+                //if state not visited
+                if (!visit.contains(nextState)) {
+                    visit.add(nextState);
+                    stack.push(nextState);
+                }
+            }
+        }
+        return visit;
     }
 
     @Override
     public int maxCopies(String s) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'maxCopies'");
+        // get eClosure of startState as initial copies
+        Set<NFAState> currCopies = eClosure(startState);
+        int maxSize = currCopies.size();
+
+        // for each symbol in the input string
+        for (Character symbol : s.toCharArray()) {
+            Set<NFAState> nextCopy = new HashSet<>();
+
+            // for each current copy, find reachable states on this symbol
+            for (NFAState curr : currCopies) {
+                // add all reachable states to nextCopy
+                nextCopy.addAll(getToState(curr, symbol));
+            }
+
+            // take eClosure of every state in nextCopies
+            Set<NFAState> closedCopy = new HashSet<>();
+            for (NFAState nextState : nextCopy) {
+                closedCopy.addAll(eClosure(nextState));
+            }
+            // update current copies
+            currCopies = closedCopy;
+
+            // update max if needed
+            if (currCopies.size() < maxSize) {
+                maxSize = currCopies.size();
+            }
+        }
+        // return maxSize
+        return maxSize;
     }
 
     @Override
     public boolean addTransition(String fromState, Set<String> toStates, char onSymb) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addTransition'");
+        if (getState(fromState) == null) {
+            return false;
+        }
+        for (String toState : toStates) {
+            if (getState(toState) == null) {
+                return false;
+            }
+        }
+        if (onSymb != 'e' && !sigma.contains(onSymb)) {
+            return false;
+        }
+        NFAState from = (NFAState) getState(fromState);
+        for (String toState : toStates) {
+            NFAState to = (NFAState) getState(toState);
+            from.addTransition(onSymb, to);
+        }
+        return true;
     }
 
     @Override
     public boolean isDFA() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isDFA'");
+        for (NFAState state : states) {
+            if (getToState(state, 'e').isEmpty()) {
+                return false;
+            }
+            for (char symbol : sigma){
+                Set<NFAState> transitions = getToState(state, symbol);
+
+                if (transitions.size() != 1) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
-    //
 }
