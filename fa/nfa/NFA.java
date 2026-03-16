@@ -122,8 +122,14 @@ public class NFA implements NFAInterface {
         return from.getTransitions(onSymb);
     }
 
+    //added for NFATest.java
+    public Set<NFAState> eClosure(State s) {
+        return eClosure((NFAState) s);
+    }
+
     @Override
     public Set<NFAState> eClosure(NFAState s) {
+
         Set<NFAState> visit = new HashSet<>();
         Stack<NFAState> stack = new Stack<>();
 
