@@ -1,32 +1,85 @@
 package fa.nfa;
 
 import java.util.Set;
+import java.util.Map;
+import java.util.HashSet;
+import java.util.HashMap;
+
+
 import fa.State;
 
+/**
+ * Models a non-deterministic finite automaton (NFA) and supports its construction, simulation, symbol swapping
+ * for transitions, and ...(TODO: finish)
+ * 
+ * @author Randy Bauer
+ * @author Oliver Hill
+ */
 public class NFA implements NFAInterface {
+
+    private Set<NFAState> states;
+    private Set<Character> sigma;
+    private NFAState startState;
+    private Set<NFAState> finalStates;
+    private Map<NFAState, HashMap<Character, NFAState>> transitions;
+
+    /**
+     * Default constructor. Initializes empty NFA 5-tuple:
+     * Q: the set of states
+     * Sigma: the alphabet
+     * q0: the start state
+     * F: the set of final states
+     * Delta: the transition function
+     */
+    public NFA() {
+        states = new HashSet<>();
+        sigma = new HashSet<>();
+        startState = null;
+        finalStates = new HashSet<>();
+        transitions = new HashMap<>();
+    }
 
     @Override
     public boolean addState(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addState'");
+        for (NFAState state : states) {
+            if (state.getName().equals(name)) {
+                return false;
+            }
+        }
+        NFAState newState = new NFAState(name);
+        states.add(newState);
+        return true;
     }
 
     @Override
     public boolean setFinal(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setFinal'");
+        for (NFAState state : states) {
+            if (state.getName().equals(name)) {
+                finalStates.add(state);
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public boolean setStart(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setStart'");
+        for (NFAState state : states) {
+            if (state.getName().equals(name)) {
+                startState = state;
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public void addSigma(char symbol) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addSigma'");
+        if (symbol == 'e') {
+            System.out.println("e is reserved for epsilon transitions and cannot be added to the alphabet.");
+            return;
+        }
+        sigma.add(symbol);
     }
 
     @Override
