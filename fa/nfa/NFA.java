@@ -5,8 +5,7 @@ import java.util.*;
 import fa.State;
 
 /**
- * Models a non-deterministic finite automaton (NFA) and supports its construction, simulation, symbol swapping
- * for transitions, and determining if the NFA is an instance of a DFA.
+ * Models a non-deterministic finite automaton (NFA).
  *
  * @author Randy Bauer
  * @author Oliver Hill
@@ -80,10 +79,9 @@ public class NFA implements NFAInterface {
      * {@inheritDoc}
      */
     @Override
-    public void addSigma(char symbol) {
+    public void addSigma(char symbol) throws IllegalArgumentException {
         if (symbol == 'e') {
-            System.out.println("e is reserved for epsilon transitions and cannot be added to the alphabet.");
-            return;
+            throw new IllegalArgumentException("e is reserved for epsilon transitions and cannot be added to the alphabet.");
         }
         sigma.add(symbol);
     }
@@ -244,7 +242,7 @@ public class NFA implements NFAInterface {
             currCopies = closedCopy;
 
             // update max if needed
-            if (currCopies.size() < maxSize) {
+            if (currCopies.size() > maxSize) {
                 maxSize = currCopies.size();
             }
         }
@@ -284,7 +282,7 @@ public class NFA implements NFAInterface {
     @Override
     public boolean isDFA() {
         for (NFAState state : states) {
-            if (getToState(state, 'e').isEmpty()) {
+            if (!getToState(state, 'e').isEmpty()) {
                 return false;
             }
             for (char symbol : sigma){
