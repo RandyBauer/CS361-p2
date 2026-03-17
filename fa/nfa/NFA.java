@@ -2,12 +2,11 @@ package fa.nfa;
 
 import java.util.*;
 
-
 import fa.State;
 
 /**
  * Models a non-deterministic finite automaton (NFA) and supports its construction, simulation, symbol swapping
- * for transitions, and ...(TODO: finish)
+ * for transitions, and determining if the NFA is an instance of a DFA.
  *
  * @author Randy Bauer
  * @author Oliver Hill
@@ -34,6 +33,9 @@ public class NFA implements NFAInterface {
         finalStates = new HashSet<>();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean addState(String name) {
         for (NFAState state : states) {
@@ -46,6 +48,9 @@ public class NFA implements NFAInterface {
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean setFinal(String name) {
         for (NFAState state : states) {
@@ -57,6 +62,9 @@ public class NFA implements NFAInterface {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean setStart(String name) {
         for (NFAState state : states) {
@@ -68,6 +76,9 @@ public class NFA implements NFAInterface {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addSigma(char symbol) {
         if (symbol == 'e') {
@@ -77,12 +88,9 @@ public class NFA implements NFAInterface {
         sigma.add(symbol);
     }
 
-    @Override
-    public boolean accepts(String s) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'accepts'");
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Set<Character> getSigma() {
        if (sigma.isEmpty()) {
@@ -91,6 +99,9 @@ public class NFA implements NFAInterface {
        return sigma;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public State getState(String name) {
         for (NFAState state : states) {
@@ -101,6 +112,9 @@ public class NFA implements NFAInterface {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isFinal(String name) {
         if (finalStates.isEmpty()) {
@@ -109,6 +123,9 @@ public class NFA implements NFAInterface {
         return finalStates.contains(getState(name));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isStart(String name) {
         if (startState == null) {
@@ -117,16 +134,27 @@ public class NFA implements NFAInterface {
         return startState.getName().equals(name);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Set<NFAState> getToState(NFAState from, char onSymb) {
         return from.getTransitions(onSymb);
     }
 
-    //added for NFATest.java
+    /**
+     * Helper method that allows calls to eClosure with a State parameter
+     * instead of an NFAState.
+     * @param s 
+     * @return set of states that can be reached from s on epsilon
+     */
     public Set<NFAState> eClosure(State s) {
         return eClosure((NFAState) s);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Set<NFAState> eClosure(NFAState s) {
 
@@ -149,7 +177,48 @@ public class NFA implements NFAInterface {
         }
         return visit;
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean accepts(String s) {
+        // get eClosure of startState as initial copies
+        Set<NFAState> currStates = eClosure(startState);
 
+        // Process each symbol in the input string
+        for (Character symbol : s.toCharArray()) {
+            
+            // States reachable by consuming this symbol
+            Set<NFAState> reachableStates = new HashSet<>();
+
+            // for each current copy, find reachable states on this symbol
+            for (NFAState state : currStates) {
+                reachableStates.addAll(getToState(state, symbol));
+            }
+            
+            // take eClosure of every state in nextCopies
+            Set<NFAState> nextStates = new HashSet<>();
+            for (NFAState nextState : reachableStates) {
+                nextStates.addAll(eClosure(nextState));
+            }
+            // update current copies
+            currStates = nextStates;
+        }
+
+        // ACCEPT if any of the current states is a final state
+        for (NFAState state : currStates) {
+            if (finalStates.contains(state)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int maxCopies(String s) {
         // get eClosure of startState as initial copies
@@ -183,6 +252,10 @@ public class NFA implements NFAInterface {
         return maxSize;
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean addTransition(String fromState, Set<String> toStates, char onSymb) {
         if (getState(fromState) == null) {
@@ -204,6 +277,10 @@ public class NFA implements NFAInterface {
         return true;
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isDFA() {
         for (NFAState state : states) {
