@@ -12,11 +12,13 @@ This program defines and implements a non-deterministic finite automaton (NFA) i
 
 Randy:
 
-I felt that this project went a little quicker that p1. Many of the fundamental methods implementations for the NFA were identical to the DFA. Reading through the interface javadocs and referencing some of the previous project methods helped that part move quickly.
+I felt that this project went a little quicker than p1. Many of the fundamental method implementations for the NFA were identical to the DFA. Reading through the interface javadocs and referencing some of the previous project methods helped that part move quickly.
 
 Oliver took care of the maxCopies() method which set the framework for me to complete the accepts() method later. Admittedly, I was confused on the purpose of maxCopies() and had to take several passes and write out some string traces to grasp it. However, it proved quite useful for the accepts() implementation since the traversal behavior very similar.
 
 I now feel like I have a better understanding of the expressive power differences between DFA's and NFA's, particularly the the ability of NFA's to branch into multiple states.
+
+**Note:** We suspect a bad test line in test3_2(). One of the assertEquals() args calls a toStates() method which was not part of either interface. After running through that NFA instance on paper and checking off tests manually, we were able to discern the intent behind the test and create a substitution for the bad test line that tests the same behavior.
 
 Oliver:
 
