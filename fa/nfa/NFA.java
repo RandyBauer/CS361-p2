@@ -79,9 +79,9 @@ public class NFA implements NFAInterface {
      * {@inheritDoc}
      */
     @Override
-    public void addSigma(char symbol) throws IllegalArgumentException {
+    public void addSigma(char symbol) {
         if (symbol == 'e') {
-            throw new IllegalArgumentException("e is reserved for epsilon transitions and cannot be added to the alphabet.");
+            return;
         }
         sigma.add(symbol);
     }
