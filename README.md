@@ -35,7 +35,6 @@ given tests (other than test 3_2). I made sure to handle maxCopies(), in which R
 Overall, I do think this project was interesting, and fundamental to our interpretation of exactly how an NFA is different from a DFA, having completed both projects now without
 a large issue at all.
 
-
 ## Compiling and Running
 
 Local (JUnit 4):
@@ -56,6 +55,9 @@ Results from our project return passing results from each test given using the J
 
 ## Code Interpretation, the "why"?
 
+One design choice we made was moving the transition HashMap into the NFAState class instead of keeping it in the NFA class. This made things easier to manage since each state contains its own transitions instead of relying on a shared map between all of the states. We then added the  addTransition and getTransitions helpers to keep traversing through the states simpler.
+
+For the accepts() and maxCopies() methods, both follow the same logic of simulating all possible paths at once by tracking a set of current states rather than one. Starting with the ε-closure of the start state, then for each symbol, we collect all the reachable states and expand them once again with ε-closure. The only difference being that accepts() checks if any of the final states are reached at the end and maxCopies() tracks the cardinality of that set of states during execution.
 
 ## Sources used
 
